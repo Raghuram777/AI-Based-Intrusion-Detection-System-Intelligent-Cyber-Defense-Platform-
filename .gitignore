@@ -1,0 +1,89 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.manifest
+*.spec
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual Environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Logs
+*.log
+logs/
+*.pcap
+
+# Data files (large datasets, packet captures)
+data/
+datasets/
+*.csv
+*.pcap
+*.cap
+
+# Model files (large trained models)
+models/*.pkl
+models/*.h5
+models/*.pt
+models/*.pth
+*.pkl
+*.h5
+*.pt
+*.pth
+
+# Secrets and credentials
+.env
+secrets.yaml
+credentials.json
+config/secrets/
+
+# OS specific
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+tmp/
+temp/
+*.tmp
