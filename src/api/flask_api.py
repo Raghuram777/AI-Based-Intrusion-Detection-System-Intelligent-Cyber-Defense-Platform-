@@ -113,17 +113,20 @@ class IDSFlaskAPI:
         @self.app.route('/api/simulate/port-scan', methods=['POST'])
         def simulate_port_scan():
             """Simulate port scan attack"""
-            return self._simulate_port_scan()
+            result = self._simulate_port_scan()
+            return jsonify(result)
         
         @self.app.route('/api/simulate/brute-force', methods=['POST'])
         def simulate_brute_force():
             """Simulate brute force attack"""
-            return self._simulate_brute_force()
+            result = self._simulate_brute_force()
+            return jsonify(result)
         
         @self.app.route('/api/simulate/dos', methods=['POST'])
         def simulate_dos():
             """Simulate DoS attack"""
-            return self._simulate_dos()
+            result = self._simulate_dos()
+            return jsonify(result)
         
         @self.app.route('/api/models/status', methods=['GET'])
         def get_models_status():
@@ -138,7 +141,7 @@ class IDSFlaskAPI:
                 'timestamp': datetime.now().isoformat()
             })
     
-    def _simulate_port_scan(self) -> Dict:
+    def _simulate_port_scan(self):
         """Simulate port scanning attack"""
         self.system_metrics['alerts_generated'] += 1
         
@@ -151,18 +154,19 @@ class IDSFlaskAPI:
             'protocol': 'TCP',
             'description': 'Port scanning attack detected - 50+ unique ports accessed in 10 seconds',
             'indicators': ['syn_flood', 'multiple_ports', 'rapid_connections'],
-            'recommendation': 'Block source IP 192.168.1.100 and review firewall rules'
+            'recommendation': 'Block source IP 192.168.1.100 and review firewall rules',
+            'timestamp': datetime.now().isoformat()
         }
         
         self.database.insert_alert(alert_data)
-        return jsonify({
+        return {
             'status': 'ATTACK_DETECTED',
             'attack_type': 'Port Scan',
-            'alert': alert_data,
+            'confidence': 0.95,
             'timestamp': datetime.now().isoformat()
-        })
+        }
     
-    def _simulate_brute_force(self) -> Dict:
+    def _simulate_brute_force(self):
         """Simulate brute force attack"""
         self.system_metrics['alerts_generated'] += 1
         
@@ -175,18 +179,19 @@ class IDSFlaskAPI:
             'protocol': 'SSH',
             'description': '150 failed SSH login attempts in 2 minutes from single IP',
             'indicators': ['failed_login_spike', 'credential_attack', 'password_guessing'],
-            'recommendation': 'Implement rate limiting and enforce MFA on SSH accounts'
+            'recommendation': 'Implement rate limiting and enforce MFA on SSH accounts',
+            'timestamp': datetime.now().isoformat()
         }
         
         self.database.insert_alert(alert_data)
-        return jsonify({
+        return {
             'status': 'ATTACK_DETECTED',
             'attack_type': 'Brute Force',
-            'alert': alert_data,
+            'confidence': 0.93,
             'timestamp': datetime.now().isoformat()
-        })
+        }
     
-    def _simulate_dos(self) -> Dict:
+    def _simulate_dos(self):
         """Simulate DoS attack"""
         self.system_metrics['alerts_generated'] += 1
         
@@ -199,16 +204,17 @@ class IDSFlaskAPI:
             'protocol': 'TCP',
             'description': 'High-volume DDoS attack detected - 50,000+ packets/sec from multiple sources',
             'indicators': ['packet_flood', 'bandwidth_exhaustion', 'service_unavailability'],
-            'recommendation': 'Activate DDoS mitigation and scale infrastructure immediately'
+            'recommendation': 'Activate DDoS mitigation and scale infrastructure immediately',
+            'timestamp': datetime.now().isoformat()
         }
         
         self.database.insert_alert(alert_data)
-        return jsonify({
+        return {
             'status': 'ATTACK_DETECTED',
             'attack_type': 'DoS Attack',
-            'alert': alert_data,
+            'confidence': 0.99,
             'timestamp': datetime.now().isoformat()
-        })
+        }
     
     def _render_dashboard(self) -> str:
         """Render HTML dashboard"""
@@ -316,22 +322,29 @@ class IDSFlaskAPI:
                     cursor: pointer;
                     font-weight: bold;
                     transition: all 0.3s;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                }
+                button:disabled {
+                    opacity: 0.6;
+                    cursor: not-allowed;
                 }
                 .btn-primary {
-                    background: #2a5298;
+                    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
                     color: white;
                 }
-                .btn-primary:hover {
-                    background: #1e3c72;
+                .btn-primary:hover:not(:disabled) {
+                    background: linear-gradient(135deg, #2a5298 0%, #3a6ca8 100%);
                     transform: translateY(-2px);
-                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
                 }
                 .btn-danger {
-                    background: #dc3545;
+                    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
                     color: white;
                 }
-                .btn-danger:hover {
-                    background: #c82333;
+                .btn-danger:hover:not(:disabled) {
+                    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
                 }
                 .btn-warning {
                     background: #ffc107;
@@ -463,62 +476,118 @@ class IDSFlaskAPI:
             </footer>
             
             <script>
+                let lastAlertCount = 0;
+                
                 async function simulateAttack(type) {
                     try {
+                        const btn = event.target;
+                        const originalText = btn.textContent;
+                        btn.textContent = 'Attacking...';
+                        btn.disabled = true;
+                        
                         const endpoint = `/api/simulate/${type}`;
                         const response = await fetch(endpoint, { method: 'POST' });
                         const data = await response.json();
-                        alert(`${data.attack_type} simulated!\\nConfidence: ${data.alert?.confidence || 'N/A'}`);
-                        refreshDashboard();
+                        
+                        // Show success animation
+                        btn.style.background = '#28a745';
+                        btn.textContent = 'ATTACK DETECTED!';
+                        
+                        // Refresh immediately to show alerts
+                        await refreshDashboard();
+                        
+                        // Reset button after delay
+                        setTimeout(() => {
+                            btn.textContent = originalText;
+                            btn.disabled = false;
+                            btn.style.background = '';
+                        }, 2000);
+                        
                     } catch (error) {
+                        console.error('Error:', error);
                         alert('Error simulating attack: ' + error.message);
                     }
                 }
                 
                 async function refreshDashboard() {
                     try {
-                        const alerts = await fetch('/api/alerts').then(r => r.json());
-                        const stats = await fetch('/api/statistics').then(r => r.json());
+                        // Fetch alerts
+                        const alertsRes = await fetch('/api/alerts');
+                        const alertsData = await alertsRes.json();
                         
+                        // Fetch statistics
+                        const statsRes = await fetch('/api/statistics');
+                        const statsData = await statsRes.json();
+                        
+                        // Update alerts list with live data
                         const alertsList = document.getElementById('alerts-list');
-                        if (alerts.alerts && alerts.alerts.length > 0) {
-                            alertsList.innerHTML = alerts.alerts.map(alert => `
-                                <div class="alert">
-                                    <div class="alert-title">${alert.alert_type} - ${alert.severity}</div>
-                                    <p>${alert.description || ''}</p>
-                                    <div class="alert-time">Confidence: ${(alert.confidence*100).toFixed(1)}%</div>
+                        if (alertsData.alerts && alertsData.alerts.length > 0) {
+                            const alertsHTML = alertsData.alerts.map(alert => `
+                                <div class="threat-item">
+                                    <div class="alert-title">
+                                        ${alert.alert_type || 'UNKNOWN'} - <span style="color: #721c24; font-weight: bold;">${alert.severity || 'UNKNOWN'}</span>
+                                    </div>
+                                    <p style="margin: 10px 0; color: #555;">
+                                        ${alert.description || 'Attack detected'}
+                                    </p>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9em; margin: 10px 0;">
+                                        <span>Source: ${alert.source_ip || 'unknown'}</span>
+                                        <span>Confidence: <strong>${Math.round((alert.confidence || 0) * 100)}%</strong></span>
+                                    </div>
+                                    <div class="alert-time">
+                                        ${alert.timestamp ? new Date(alert.timestamp).toLocaleTimeString() : 'unknown time'}
+                                    </div>
                                 </div>
                             `).join('');
+                            alertsList.innerHTML = alertsHTML;
                         } else {
                             alertsList.innerHTML = '<p style="color: #999; text-align: center; padding: 40px;">No alerts detected. System is secure.</p>';
                         }
                         
-                        if (stats.severity_distribution) {
-                            const critCount = stats.severity_distribution.CRITICAL || 0;
-                            const warnCount = stats.severity_distribution.WARNING || 0;
-                            const infoCount = stats.severity_distribution.INFO || 0;
+                        // Update statistics
+                        if (statsData && statsData.severity_distribution) {
+                            const critCount = statsData.severity_distribution.CRITICAL || 0;
+                            const highCount = statsData.severity_distribution.HIGH || 0;
+                            const medCount = statsData.severity_distribution.MEDIUM || 0;
+                            const lowCount = statsData.severity_distribution.LOW || 0;
+                            
                             document.getElementById('alert-stats').innerHTML = `
                                 <div class="metric">
                                     <span class="metric-label">Critical</span>
-                                    <span class="metric-value">${critCount}</span>
+                                    <span class="metric-value" style="${critCount > 0 ? 'color: #dc3545;' : ''}">${critCount}</span>
                                 </div>
                                 <div class="metric">
-                                    <span class="metric-label">Warnings</span>
-                                    <span class="metric-value">${warnCount}</span>
+                                    <span class="metric-label">High</span>
+                                    <span class="metric-value">${highCount}</span>
                                 </div>
                                 <div class="metric">
-                                    <span class="metric-label">Info</span>
-                                    <span class="metric-value">${infoCount}</span>
+                                    <span class="metric-label">Medium</span>
+                                    <span class="metric-value">${medCount}</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Low</span>
+                                    <span class="metric-value">${lowCount}</span>
                                 </div>
                             `;
                         }
+                        
+                        // Update last refresh time
+                        const now = new Date();
+                        const timeStr = now.toLocaleTimeString();
+                        const lastUpdateElem = document.querySelector('[data-update-time]');
+                        if (lastUpdateElem) {
+                            lastUpdateElem.textContent = `Updated: ${timeStr}`;
+                        }
+                        
                     } catch (error) {
                         console.error('Error refreshing dashboard:', error);
                     }
                 }
                 
-                // Auto-refresh every 5 seconds
-                setInterval(refreshDashboard, 5000);
+                // Auto-refresh every 2 seconds for more responsive feel
+                setInterval(refreshDashboard, 2000);
+                
+                // Initial refresh
                 refreshDashboard();
             </script>
         </body>

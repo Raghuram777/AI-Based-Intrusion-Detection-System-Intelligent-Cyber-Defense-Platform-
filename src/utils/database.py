@@ -43,7 +43,9 @@ class Database:
     def _initialize_database(self) -> None:
         """Create database tables if they don't exist"""
         try:
-            self.connection = sqlite3.connect(self.db_path)
+            # Enable thread-safe mode with check_same_thread=False
+            self.connection = sqlite3.connect(self.db_path, check_same_thread=False, timeout=10.0)
+            self.connection.row_factory = sqlite3.Row
             cursor = self.connection.cursor()
             
             # Alerts table
