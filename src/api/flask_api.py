@@ -45,9 +45,18 @@ class IDSFlaskAPI:
     def _setup_routes(self):
         """Setup Flask routes"""
         
-        # Dashboard page
+        # Dashboard page (modern version)
         @self.app.route('/')
         def dashboard():
+            try:
+                with open('api/modern_dashboard.html', 'r', encoding='utf-8') as f:
+                    return f.read()
+            except:
+                return self._render_dashboard()
+        
+        # Legacy dashboard endpoint for compatibility
+        @self.app.route('/dashboard-legacy')
+        def dashboard_legacy():
             return self._render_dashboard()
         
         # API endpoints
@@ -155,7 +164,7 @@ class IDSFlaskAPI:
             'description': 'Port scanning attack detected - 50+ unique ports accessed in 10 seconds',
             'indicators': ['syn_flood', 'multiple_ports', 'rapid_connections'],
             'recommendation': 'Block source IP 192.168.1.100 and review firewall rules',
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
         
         self.database.insert_alert(alert_data)
@@ -163,7 +172,7 @@ class IDSFlaskAPI:
             'status': 'ATTACK_DETECTED',
             'attack_type': 'Port Scan',
             'confidence': 0.95,
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
     
     def _simulate_brute_force(self):
@@ -180,7 +189,7 @@ class IDSFlaskAPI:
             'description': '150 failed SSH login attempts in 2 minutes from single IP',
             'indicators': ['failed_login_spike', 'credential_attack', 'password_guessing'],
             'recommendation': 'Implement rate limiting and enforce MFA on SSH accounts',
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
         
         self.database.insert_alert(alert_data)
@@ -188,7 +197,7 @@ class IDSFlaskAPI:
             'status': 'ATTACK_DETECTED',
             'attack_type': 'Brute Force',
             'confidence': 0.93,
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
     
     def _simulate_dos(self):
@@ -205,7 +214,7 @@ class IDSFlaskAPI:
             'description': 'High-volume DDoS attack detected - 50,000+ packets/sec from multiple sources',
             'indicators': ['packet_flood', 'bandwidth_exhaustion', 'service_unavailability'],
             'recommendation': 'Activate DDoS mitigation and scale infrastructure immediately',
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
         
         self.database.insert_alert(alert_data)

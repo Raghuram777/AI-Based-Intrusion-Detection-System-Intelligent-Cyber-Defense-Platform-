@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Intrusion Detection System - Professional Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.3.4/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        :root {
+            --primary: #0f172a;
+            --secondary: #1e293b;
+            --accent: #00d4ff;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark-bg: #0f172a;
+            --card-bg: #1e293b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1a1f35 100%);
+            color: #e2e8f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(30, 41, 59, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 212, 255, 0.5);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 212, 255, 0.8);
+        }
+
+        /* Glassmorphism effect */
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            border-radius: 12px;
+        }
+
+        /* Neon glow effects */
+        .neon-glow {
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            transition: box-shadow 0.3s ease;
+        }
+        .neon-glow:hover {
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.6);
+        }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Animated gradient border */
+        .gradient-border {
+            position: relative;
+            border: 1px solid transparent;
+            background-image: 
+                linear-gradient(#1e293b, #1e293b),
+                linear-gradient(135deg, #00d4ff, #0099ff);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+        }
+
+        /* Pulse animation */
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(0, 212, 255, 0.6);
+            }
+        }
+
+        .pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        /* Slide in animation */
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: slideInUp 0.5s ease-out;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(0, 212, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+            color: #000;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 212, 255, 0.5);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(239, 68, 68, 0.5);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Severity indicators */
+        .severity-critical {
+            color: #ef4444;
+            font-weight: 700;
+        }
+
+        .severity-high {
+            color: #f59e0b;
+        }
+
+        .severity-medium {
+            color: #3b82f6;
+        }
+
+        .severity-low {
+            color: #10b981;
+        }
+
+        /* Stats display */
+        .stat-box {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 153, 255, 0.05));
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Alert item */
+        .alert-item {
+            background: rgba(0, 212, 255, 0.05);
+            border-left: 4px solid #00d4ff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        .alert-item:hover {
+            background: rgba(0, 212, 255, 0.1);
+            transform: translateX(4px);
+        }
+
+        .alert-item.critical {
+            border-left-color: #ef4444;
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .alert-item.high {
+            border-left-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        /* Status badge */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .status-operational {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .status-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        /* Loading animation */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            animation: spin 2s linear infinite;
+        }
+
+        /* Header */
+        header {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        /* Responsive grid */
+        .grid-responsive {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        /* Chart container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            background: rgba(0, 212, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        /* Data grid */
+        .data-grid {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-grid th {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+            font-weight: 600;
+        }
+
+        .data-grid td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        .data-grid tr:hover {
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .grid-responsive {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M13 7H7v6h6V7z"></path>
+                        </svg>
+                    </div>
+                    <h1 class="text-2xl font-bold gradient-text">AI-IDS Dashboard</h1>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="status-badge status-operational">
+                        🟢 {{ systemStatus }}
+                    </span>
+                    <button @click="refreshData" class="btn btn-primary text-sm">
+                        🔄 Refresh
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 py-8">
+            <!-- Key Statistics Section -->
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold mb-4 gradient-text">Real-Time Metrics</h2>
+                <div class="grid-responsive">
+                    <!-- Total Alerts -->
+                    <div class="card neon-glow animate-in">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-lg font-semibold text-gray-300">Total Alerts</h3>
+                            <svg class="w-8 h-8 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V15a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="stat-number">{{ statistics.total_alerts }}</div>
+                        <p class="text-gray-400 text-sm mt-2">In the last 24 hours</p>
+                    </div>
+
+                    <!-- Critical Alerts -->
+                    <div class="card neon-glow animate-in">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-lg font-semibold text-gray-300">Critical Alerts</h3>
+                            <svg class="w-8 h-8 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div class="stat-number severity-critical">
+                            {{ statistics.severity_distribution?.CRITICAL || 0 }}
+                        </div>
+                        <p class="text-gray-400 text-sm mt-2">Requires immediate action</p>
+                    </div>
+
+                    <!-- Detection Rate -->
+                    <div class="card neon-glow animate-in">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-lg font-semibold text-gray-300">Detection Rate</h3>
+                            <svg class="w-8 h-8 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 11a1 1 0 011 1v5H8v-5a1 1 0 011-1zm0-7a1 1 0 011 1v3H8V5a1 1 0 011-1zm4 0a1 1 0 011 1v8h-2V5a1 1 0 011-1zm-8 0a1 1 0 011 1v8H3V5a1 1 0 011-1z"></path>
+                            </svg>
+                        </div>
+                        <div class="stat-number">{{ statistics.average_confidence?.toFixed(1) || 0 }}%</div>
+                        <p class="text-gray-400 text-sm mt-2">Average confidence score</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Attack Simulation Section -->
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold mb-4 gradient-text">Attack Simulation Lab</h2>
+                <div class="card">
+                    <p class="text-gray-400 mb-4">Test the IDS by simulating different types of cyberattacks. Monitor detection in real-time.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <button 
+                            @click="simulateAttack('port-scan')" 
+                            :disabled="simulatingAttack"
+                            class="btn btn-primary w-full disabled:opacity-50"
+                        >
+                            {{ simulatingAttack === 'port-scan' ? '⏳ Attacking...' : '🔍 Port Scan' }}
+                        </button>
+                        <button 
+                            @click="simulateAttack('brute-force')" 
+                            :disabled="simulatingAttack"
+                            class="btn btn-danger w-full disabled:opacity-50"
+                        >
+                            {{ simulatingAttack === 'brute-force' ? '⏳ Attacking...' : '🔐 Brute Force' }}
+                        </button>
+                        <button 
+                            @click="simulateAttack('dos')" 
+                            :disabled="simulatingAttack"
+                            class="btn btn-danger w-full disabled:opacity-50"
+                        >
+                            {{ simulatingAttack === 'dos' ? '⏳ Attacking...' : '⚡ DoS Attack' }}
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Alerts Section -->
+            <section class="mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold gradient-text">Recent Alerts</h2>
+                    <span class="text-sm text-gray-400">Last updated: {{ lastUpdate }}</span>
+                </div>
+
+                <div v-if="alerts.length === 0" class="card text-center py-8">
+                    <p class="text-gray-400">No alerts detected yet. Start a simulation to see alerts.</p>
+                </div>
+
+                <div v-else class="space-y-3">
+                    <div 
+                        v-for="alert in alerts.slice(0, 20)" 
+                        :key="alert.id"
+                        :class="['alert-item', alert.severity.toLowerCase()]"
+                    >
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <span class="font-bold text-white">{{ alert.alert_type }}</span>
+                                <span :class="['ml-3 status-badge', 'severity-' + alert.severity.toLowerCase()]">
+                                    {{ alert.severity }}
+                                </span>
+                            </div>
+                            <span class="text-xs text-gray-400">{{ formatTime(alert.timestamp) }}</span>
+                        </div>
+                        <p class="text-sm text-gray-300 mb-2">{{ alert.description }}</p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                            <div>
+                                <span class="text-gray-400">Source IP:</span>
+                                <span class="text-cyan-400 ml-1 font-mono">{{ alert.source_ip }}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-400">Protocol:</span>
+                                <span class="text-cyan-400 ml-1">{{ alert.protocol }}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-400">Confidence:</span>
+                                <span class="text-cyan-400 ml-1 font-bold">{{ (alert.confidence * 100).toFixed(0) }}%</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-400">Timestamp:</span>
+                                <span class="text-cyan-400 ml-1">{{ alert.timestamp }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Models Status -->
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold mb-4 gradient-text">AI Detection Models</h2>
+                <div class="grid-responsive">
+                    <div v-for="model in aiModels" :key="model.name" class="card">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="font-semibold text-white">{{ model.name }}</h3>
+                            <span class="status-badge status-operational">{{ model.status }}</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2 mb-2">
+                            <div 
+                                class="bg-gradient-to-r from-cyan-400 to-blue-500 h-2 rounded-full transition-all duration-500"
+                                :style="{ width: model.accuracy + '%' }"
+                            ></div>
+                        </div>
+                        <div class="flex justify-between text-sm text-gray-400">
+                            <span>Accuracy</span>
+                            <span class="text-cyan-400 font-bold">{{ model.accuracy }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                const alerts = ref([]);
+                const statistics = ref({
+                    total_alerts: 0,
+                    severity_distribution: {},
+                    average_confidence: 0
+                });
+                const systemStatus = ref('OPERATIONAL');
+                const lastUpdate = ref(new Date().toLocaleTimeString());
+                const simulatingAttack = ref(null);
+
+                const aiModels = ref([
+                    { name: 'Isolation Forest', accuracy: 95, status: 'TRAINED' },
+                    { name: 'Statistical Analysis', accuracy: 92, status: 'TRAINED' },
+                    { name: 'LSTM Detector', accuracy: 94, status: 'READY' },
+                    { name: 'Attack Classifier', accuracy: 88, status: 'TRAINED' }
+                ]);
+
+                const fetchAlerts = async () => {
+                    try {
+                        const response = await fetch('/api/alerts');
+                        const data = await response.json();
+                        alerts.value = data.alerts || [];
+                        lastUpdate.value = new Date().toLocaleTimeString();
+                    } catch (error) {
+                        console.error('Error fetching alerts:', error);
+                    }
+                };
+
+                const fetchStatistics = async () => {
+                    try {
+                        const response = await fetch('/api/statistics');
+                        const data = await response.json();
+                        statistics.value = data;
+                    } catch (error) {
+                        console.error('Error fetching statistics:', error);
+                    }
+                };
+
+                const simulateAttack = async (attackType) => {
+                    simulatingAttack.value = attackType;
+                    try {
+                        const response = await fetch(`/api/simulate/${attackType}`, {
+                            method: 'POST'
+                        });
+                        const data = await response.json();
+                        console.log('Attack simulated:', data);
+                        
+                        // Refresh alerts after simulation
+                        setTimeout(() => {
+                            fetchAlerts();
+                            fetchStatistics();
+                        }, 500);
+                    } catch (error) {
+                        console.error('Error simulating attack:', error);
+                    } finally {
+                        setTimeout(() => {
+                            simulatingAttack.value = null;
+                        }, 1000);
+                    }
+                };
+
+                const refreshData = async () => {
+                    await Promise.all([fetchAlerts(), fetchStatistics()]);
+                };
+
+                const formatTime = (timestamp) => {
+                    if (!timestamp) return 'N/A';
+                    try {
+                        const date = new Date(timestamp);
+                        return date.toLocaleTimeString();
+                    } catch {
+                        return timestamp;
+                    }
+                };
+
+                // Initial load
+                onMounted(async () => {
+                    await refreshData();
+                    // Auto-refresh every 2 seconds
+                    setInterval(refreshData, 2000);
+                });
+
+                return {
+                    alerts,
+                    statistics,
+                    systemStatus,
+                    lastUpdate,
+                    simulatingAttack,
+                    aiModels,
+                    simulateAttack,
+                    refreshData,
+                    formatTime
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
